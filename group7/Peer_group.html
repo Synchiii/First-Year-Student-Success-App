@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peer Group</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #eaf4ea;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      flex-grow: 1;
+      padding: 60px 20px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-weight: 700;
+      color: #394E25;
+    }
+
+    .page-header p {
+      color: #555;
+      font-size: 1.1rem;
+    }
+
+    .peer-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      background-color: #fff;
+    }
+
+    .peer-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .peer-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #394E25;
+    }
+
+    .card-title {
+      color: #394E25;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .nickname {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .btn-message {
+      background-color: #394E25;
+      color: white;
+      border: none;
+    }
+
+    .btn-message:hover {
+      background-color: #506B33;
+    }
+
+    .add-peer-form {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px 0;
+      background-color: #394E25;
+      color: white;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Back Button -->
+  <button class="btn btn-secondary back-btn" onclick="window.location.href='Landing_Page.html'">
+    ← Back 
+  </button>
+
+  <!-- Peer Group Section -->
+  <div class="container">
+    <div class="page-header">
+      <h1>Peer Group</h1>
+      <p>Connect with fellow students to learn, share, and grow together.</p>
+    </div>
+
+    <!-- Peer Cards -->
+    <div class="row g-4" id="peerList">
+      <div class="col-md-4">
+        <div class="card peer-card text-center p-3">
+          <img src="https://via.placeholder.com/100" alt="Peer Photo">
+          <h5 class="card-title">Jordan Nicolas</h5>
+          <p class="nickname">"Jordz"</p>
+          <p class="card-text text-muted">BSIT 2-09</p>
+          <button class="btn btn-message">Message</button>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card peer-card text-center p-3">
+          <img src="https://via.placeholder.com/100" alt="Peer Photo">
+          <h5 class="card-title">John Darwin Caragan</h5>
+          <p class="nickname">"Dar"</p>
+          <p class="card-text text-muted">BSIT 2-09</p>
+          <button class="btn btn-message">Message</button>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card peer-card text-center p-3">
+          <img src="https://via.placeholder.com/100" alt="Peer Photo">
+          <h5 class="card-title">Nathaniel Almonidovar</h5>
+          <p class="nickname">"Nate"</p>
+          <p class="card-text text-muted">BSIT 2-09</p>
+          <button class="btn btn-message">Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Peer Form -->
+    <div class="mt-5">
+      <h3 class="text-center text-success mb-4">Add a New Peer</h3>
+      <form id="addPeerForm" class="add-peer-form">
+        <div class="mb-3">
+          <label for="peerName" class="form-label fw-semibold">Full Name</label>
+          <input type="text" class="form-control" id="peerName" placeholder="Enter full name" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="peerNickname" class="form-label fw-semibold">Nickname</label>
+          <input type="text" class="form-control" id="peerNickname" placeholder="Enter nickname" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="peerCourse" class="form-label fw-semibold">Course & Section</label>
+          <input type="text" class="form-control" id="peerCourse" placeholder="e.g., BSIT 1-A" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="peerImage" class="form-label fw-semibold">Profile Image URL</label>
+          <input type="text" class="form-control" id="peerImage" placeholder="Enter image link or leave blank">
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-success px-4 py-2">Add Peer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Peer Group | Connect, Collaborate, and Grow
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Peer Group Script -->
+  <script>
+    const addPeerForm = document.getElementById('addPeerForm');
+    const peerList = document.getElementById('peerList');
+
+    addPeerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('peerName').value.trim();
+      const nickname = document.getElementById('peerNickname').value.trim();
+      const course = document.getElementById('peerCourse').value.trim();
+      const image = document.getElementById('peerImage').value.trim() || 'https://via.placeholder.com/100';
+
+      if (name && nickname && course) {
+        const newPeer = document.createElement('div');
+        newPeer.classList.add('col-md-4');
+        newPeer.innerHTML = `
+          <div class="card peer-card text-center p-3">
+            <img src="${image}" alt="Peer Photo">
+            <h5 class="card-title">${name}</h5>
+            <p class="nickname">"${nickname}"</p>
+            <p class="card-text text-muted">${course}</p>
+            <button class="btn btn-message">Message</button>
+          </div>
+        `;
+        peerList.appendChild(newPeer);
+
+        addPeerForm.reset();
+        alert('New peer added successfully!');
+      }
+    });
+  </script>
+</body>
+</html>

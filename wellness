@@ -1,0 +1,161 @@
+<?php
+// ✅ Connect to the database
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "login_register";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Instructor username (you can replace this with session later)
+$instructor_username = "Instructor_Ana";
+
+// Message
+$message = "";
+
+// ✅ ADD POST
+if (isset($_POST['add_post'])) {
+    $title = trim($_POST['title']);
+    $content = trim($_POST['content']);
+    $image = NULL;
+
+    // Handle image upload
+    if (!empty($_FILES['image']['name'])) {
+        $imageName = time() . "_" . basename($_FILES['image']['name']);
+        $targetPath = "uploads/" . $imageName;
+
+        if (!is_dir("uploads")) {
+            mkdir("uploads", 0777, true);
+        }
+
+        move_uploaded_file($_FILES['image']['tmp_name'], $targetPath);
+        $image = $targetPath;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO wellness_posts (instructor_username, title, content, image) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $instructor_username, $title, $content, $image);
+    $stmt->execute();
+    $message = "✅ Wellness post added successfully!";
+}
+
+// ✅ DELETE POST
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $stmt = $conn->prepare("DELETE FROM wellness_posts WHERE id=? AND instructor_username=?");
+    $stmt->bind_param("is", $id, $instructor_username);
+    $stmt->execute();
+    $message = "🗑️ Post deleted successfully!";
+}
+
+// ✅ UPDATE POST
+if (isset($_POST['update_post'])) {
+    $id = intval($_POST['post_id']);
+    $title = trim($_POST['title']);
+    $content = trim($_POST['content']);
+
+    $stmt = $conn->prepare("UPDATE wellness_posts SET title=?, content=? WHERE id=? AND instructor_username=?");
+    $stmt->bind_param("ssis", $title, $content, $id, $instructor_username);
+    $stmt->execute();
+    $message = "✏️ Post updated successfully!";
+}
+
+// ✅ FETCH POSTS
+$stmt = $conn->prepare("SELECT * FROM wellness_posts WHERE instructor_username=? ORDER BY created_at DESC");
+$stmt->bind_param("s", $instructor_username);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructor Wellness</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="text-center mb-4 text-success">💚 Instructor Wellness Hub 💚</h2>
+
+        <?php if ($message): ?>
+            <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+        <?php endif; ?>
+
+        <!-- Add Post Form -->
+        <div class="card p-4 mb-5 shadow">
+            <h5>📝 Add a New Wellness Post</h5>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="text" name="title" class="form-control" placeholder="Title" required>
+                </div>
+                <div class="mb-3">
+                    <textarea name="content" class="form-control" rows="4" placeholder="Write your post..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <input type="file" name="image" class="form-control">
+                </div>
+                <button type="submit" name="add_post" class="btn btn-success w-100">Publish Post</button>
+            </form>
+        </div>
+
+        <!-- Posts List -->
+        <h4 class="mb-3">📢 Your Wellness Posts</h4>
+        <div class="row g-4">
+            <?php if ($result && $result->num_rows > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm p-3">
+                            <?php if (!empty($row['image'])): ?>
+                                <img src="<?= htmlspecialchars($row['image']) ?>" class="card-img-top mb-3 rounded" style="max-height:250px; object-fit:cover;" alt="Post Image">
+                            <?php endif; ?>
+                            <h5 class="card-title"><?= htmlspecialchars($row['title']) ?></h5>
+                            <p class="card-text"><?= nl2br(htmlspecialchars($row['content'])) ?></p>
+                            <small class="text-muted">Posted on <?= htmlspecialchars($row['created_at']) ?></small>
+                            <div class="mt-3">
+                                <!-- Edit Button -->
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $row['id'] ?>">Edit</button>
+                                <a href="?delete=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal<?= $row['id'] ?>" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title">Edit Post</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="post_id" value="<?= $row['id'] ?>">
+                                        <div class="mb-3">
+                                            <label>Title</label>
+                                            <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($row['title']) ?>" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label>Content</label>
+                                            <textarea name="content" class="form-control" rows="4" required><?= htmlspecialchars($row['content']) ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" name="update_post" class="btn btn-success">Save Changes</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p class="text-muted">No posts yet. Share your first wellness post!</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

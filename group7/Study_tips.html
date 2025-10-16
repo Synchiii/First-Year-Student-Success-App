@@ -16,6 +16,7 @@
       margin: 0;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;
     }
 
     .container {
@@ -29,24 +30,28 @@
     }
 
     .page-header h1 {
-      font-weight: 700;
-      color: #394E25;
+      font-weight: 800;
+      color: #2e3c1c;
+      font-size: 3rem;
+      text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2);
     }
 
     .page-header p {
       color: #555;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
     .tip-card {
       border: none;
       border-radius: 15px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
     }
 
     .tip-card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
     }
 
     .card-body {
@@ -69,16 +74,18 @@
       position: fixed;
       top: 20px;
       left: 20px;
+      z-index: 1000;
     }
 
     .tip-of-day {
-      background-color: #394E25;
-      color: white;
-      border-radius: 10px;
+      background: linear-gradient(90deg, #94C973, #C5E384);
+      color: #1d2c0f;
+      border-radius: 12px;
       padding: 20px;
       margin: 40px auto;
       text-align: center;
       max-width: 700px;
+      font-weight: 500;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
@@ -88,6 +95,49 @@
       background-color: #394E25;
       color: white;
       font-size: 0.9rem;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border: none;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #5c9735, #c7e879);
+      color: white;
+      border-bottom: none;
+      text-align: center;
+    }
+
+    .modal-body {
+      background-color: #fdfdfd;
+      font-size: 1.3rem;
+      text-align: center;
+      color: #2e3c1c;
+      font-weight: 500;
+      padding: 30px;
+      animation: fadeInText 0.6s ease;
+    }
+
+    .modal-body i {
+      font-size: 2.5rem;
+      color: #7ba950;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.95);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    @keyframes fadeInText {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
@@ -101,8 +151,8 @@
   <!-- Study Tips Content -->
   <div class="container">
     <div class="page-header">
-      <h1>Study Tips for Students</h1>
-      <p>Learn smart strategies to study efficiently and achieve your academic goals!</p>
+      <h1>Welcome Freshies!</h1>
+      <p>Learn smart strategies to manage your time effectively and achieve your academic goals!</p>
     </div>
 
     <!-- Tip of the Day -->
@@ -112,68 +162,9 @@
     </div>
 
     <!-- Tip Cards -->
-    <div class="row g-4">
-      <!-- Time Management -->
-      <div class="col-md-4">
-        <div class="card tip-card h-100">
-          <div class="card-body">
-            <h5 class="card-title">⏰ Time Management</h5>
-            <p class="card-text">
-              Create a study schedule and stick to it. Break large tasks into smaller, manageable parts to avoid cramming.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Note-Taking -->
-      <div class="col-md-4">
-        <div class="card tip-card h-100">
-          <div class="card-body">
-            <h5 class="card-title">📝 Effective Note-Taking</h5>
-            <p class="card-text">
-              Summarize key ideas in your own words. Use colors, bullet points, or diagrams to make notes more engaging.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Focus -->
-      <div class="col-md-4">
-        <div class="card tip-card h-100">
-          <div class="card-body">
-            <h5 class="card-title">🎧 Stay Focused</h5>
-            <p class="card-text">
-              Find a quiet place to study, silence distractions, and try the Pomodoro Technique—25 minutes study, 5 minutes break.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Study Environment -->
-      <div class="col-md-6">
-        <div class="card tip-card h-100">
-          <div class="card-body">
-            <h5 class="card-title">📚 Organize Your Study Space</h5>
-            <p class="card-text">
-              Keep your study area clean and well-lit. A clutter-free environment helps your mind focus and improves concentration.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Review Techniques -->
-      <div class="col-md-6">
-        <div class="card tip-card h-100">
-          <div class="card-body">
-            <h5 class="card-title">🔁 Review Regularly</h5>
-            <p class="card-text">
-              Review your notes weekly instead of only before exams. Regular revision strengthens memory retention.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div class="row g-4" id="tipsContainer">
+      <!-- Cards generated by JS -->
     </div>
-
   </div>
 
   <!-- Footer -->
@@ -181,24 +172,64 @@
     © 2025 Study Success Guide | Designed for First Year College Students
   </footer>
 
+  <!-- Modal -->
+  <div class="modal fade" id="tipModal" tabindex="-1" aria-labelledby="tipModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="tipModalLabel">✨ Study Tip Highlight</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modalTipText">
+          <!-- Tip content appears here -->
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Got it!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Tip of the Day Script -->
   <script>
     const tips = [
-      "Start your day with a clear plan — list your 3 most important study goals.",
-      "Study smarter, not longer — focus on understanding concepts, not memorizing words.",
-      "Take short breaks to refresh your mind and improve focus.",
-      "Teach what you learn — explaining topics to others helps you remember better.",
-      "Sleep well! A rested brain learns and recalls information faster.",
-      "Turn off notifications during study time to avoid distractions.",
-      "Reward yourself after completing a study session — you earned it!",
-      "Use flashcards to test yourself and reinforce memory retention."
+      "Set clear, achievable goals for each study session — small wins build momentum.",
+      "Use a study planner to allocate time for each subject throughout the week.",
+      "Start your day with your hardest subject — your brain is freshest in the morning.",
+      "Avoid cramming. Spacing out your study time improves long-term memory.",
+      "Use the Pomodoro method: 25 minutes of focus, 5 minutes of rest — repeat!",
+      "Minimize distractions — silence your phone and close unused tabs.",
+      "Prioritize tasks: Focus on what’s most important, not what’s easiest.",
+      "Take breaks — resting your mind improves focus and retention.",
+      "Track your time — find out where you waste it, then adjust your habits.",
+      "Reward yourself after studying — it keeps you motivated for the next task."
     ];
 
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    document.getElementById("dailyTip").innerText = randomTip;
+    // Display random daily tip
+    document.getElementById("dailyTip").innerText = tips[Math.floor(Math.random() * tips.length)];
+
+    // Generate cards
+    const container = document.getElementById("tipsContainer");
+    tips.forEach((tip, i) => {
+      const col = document.createElement("div");
+      col.className = "col-md-4";
+      col.innerHTML = `
+        <div class="card tip-card h-100" data-bs-toggle="modal" data-bs-target="#tipModal" onclick="showTip(${i})">
+          <div class="card-body text-center">
+            <h5 class="card-title">📘 Tip #${i + 1}</h5>
+            <p class="card-text text-muted">Click to reveal this tip</p>
+          </div>
+        </div>`;
+      container.appendChild(col);
+    });
+
+    // Show tip in modal
+    function showTip(i) {
+      const modalBody = document.getElementById("modalTipText");
+      modalBody.innerHTML = `<i class='bi bi-lightbulb'></i><p>${tips[i]}</p>`;
+    }
   </script>
 </body>
 </html>

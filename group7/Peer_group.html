@@ -42,8 +42,14 @@
       border: none;
       border-radius: 15px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
       background-color: #fff;
+      position: relative;
+    }
+
+    .peer-card.removing {
+      opacity: 0;
+      transform: scale(0.95);
     }
 
     .peer-card:hover {
@@ -57,6 +63,12 @@
       object-fit: cover;
       margin-bottom: 15px;
       border: 3px solid #394E25;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .peer-card img:hover {
+      transform: scale(1.05);
     }
 
     .card-title {
@@ -75,10 +87,32 @@
       background-color: #394E25;
       color: white;
       border: none;
+      margin-right: 8px;
     }
 
     .btn-message:hover {
       background-color: #506B33;
+    }
+
+    .btn-remove {
+      background-color: #b02a37;
+      color: white;
+      border: none;
+      margin-right: 8px;
+    }
+
+    .btn-remove:hover {
+      background-color: #92212b;
+    }
+
+    .btn-edit {
+      background-color: #ffc107;
+      color: black;
+      border: none;
+    }
+
+    .btn-edit:hover {
+      background-color: #e0a800;
     }
 
     .add-peer-form {
@@ -103,54 +137,32 @@
       color: white;
       font-size: 0.9rem;
     }
+
+    .modal-content {
+      background: #f9f9f9;
+      border-radius: 10px;
+    }
+
+    .modal-body img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 
 <body>
   <!-- Back Button -->
-  <button class="btn btn-secondary back-btn" onclick="window.location.href='Landing_Page.html'">
-    ← Back 
-  </button>
+  <button class="btn btn-secondary back-btn" onclick="window.location.href='Landing_Page.html'">← Back</button>
 
-  <!-- Peer Group Section -->
   <div class="container">
     <div class="page-header">
       <h1>Peer Group</h1>
       <p>Connect with fellow students to learn, share, and grow together.</p>
     </div>
 
-    <!-- Peer Cards -->
-    <div class="row g-4" id="peerList">
-      <div class="col-md-4">
-        <div class="card peer-card text-center p-3">
-          <img src="https://via.placeholder.com/100" alt="Peer Photo">
-          <h5 class="card-title">Jordan Nicolas</h5>
-          <p class="nickname">"Jordz"</p>
-          <p class="card-text text-muted">BSIT 2-09</p>
-          <button class="btn btn-message">Message</button>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card peer-card text-center p-3">
-          <img src="https://via.placeholder.com/100" alt="Peer Photo">
-          <h5 class="card-title">John Darwin Caragan</h5>
-          <p class="nickname">"Dar"</p>
-          <p class="card-text text-muted">BSIT 2-09</p>
-          <button class="btn btn-message">Message</button>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card peer-card text-center p-3">
-          <img src="https://via.placeholder.com/100" alt="Peer Photo">
-          <h5 class="card-title">Nathaniel Almonidovar</h5>
-          <p class="nickname">"Nate"</p>
-          <p class="card-text text-muted">BSIT 2-09</p>
-          <button class="btn btn-message">Message</button>
-        </div>
-      </div>
-    </div>
+    <!-- Peer List -->
+    <div class="row g-4" id="peerList"></div>
 
     <!-- Add Peer Form -->
     <div class="mt-5">
@@ -158,17 +170,17 @@
       <form id="addPeerForm" class="add-peer-form">
         <div class="mb-3">
           <label for="peerName" class="form-label fw-semibold">Full Name</label>
-          <input type="text" class="form-control" id="peerName" placeholder="Enter full name" required>
+          <input type="text" class="form-control" id="peerName" required>
         </div>
 
         <div class="mb-3">
           <label for="peerNickname" class="form-label fw-semibold">Nickname</label>
-          <input type="text" class="form-control" id="peerNickname" placeholder="Enter nickname" required>
+          <input type="text" class="form-control" id="peerNickname" required>
         </div>
 
         <div class="mb-3">
           <label for="peerCourse" class="form-label fw-semibold">Course & Section</label>
-          <input type="text" class="form-control" id="peerCourse" placeholder="e.g., BSIT 1-A" required>
+          <input type="text" class="form-control" id="peerCourse" required>
         </div>
 
         <div class="mb-3">
@@ -183,43 +195,154 @@
     </div>
   </div>
 
+  <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Peer Photo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" src="" alt="Peer Image">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editPeerModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Edit Peer Info</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPeerForm">
+            <input type="hidden" id="editPeerIndex">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="editName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nickname</label>
+              <input type="text" id="editNickname" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Course & Section</label>
+              <input type="text" id="editCourse" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Profile Image URL</label>
+              <input type="text" id="editImage" class="form-control">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-success">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     © 2025 Peer Group | Connect, Collaborate, and Grow
   </footer>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Peer Group Script -->
   <script>
-    const addPeerForm = document.getElementById('addPeerForm');
-    const peerList = document.getElementById('peerList');
+    const peerList = document.getElementById("peerList");
+    const addPeerForm = document.getElementById("addPeerForm");
+    const editPeerForm = document.getElementById("editPeerForm");
+    const editPeerModal = new bootstrap.Modal(document.getElementById("editPeerModal"));
+    const imageModal = new bootstrap.Modal(document.getElementById("imageModal"));
+    const modalImage = document.getElementById("modalImage");
 
-    addPeerForm.addEventListener('submit', function(e) {
-      e.preventDefault();
+    let peers = JSON.parse(localStorage.getItem("peers")) || [];
+    let editingIndex = null;
 
-      const name = document.getElementById('peerName').value.trim();
-      const nickname = document.getElementById('peerNickname').value.trim();
-      const course = document.getElementById('peerCourse').value.trim();
-      const image = document.getElementById('peerImage').value.trim() || 'https://via.placeholder.com/100';
-
-      if (name && nickname && course) {
-        const newPeer = document.createElement('div');
-        newPeer.classList.add('col-md-4');
-        newPeer.innerHTML = `
+    function renderPeers() {
+      peerList.innerHTML = "";
+      peers.forEach((peer, index) => {
+        const card = document.createElement("div");
+        card.className = "col-md-4";
+        card.innerHTML = `
           <div class="card peer-card text-center p-3">
-            <img src="${image}" alt="Peer Photo">
-            <h5 class="card-title">${name}</h5>
-            <p class="nickname">"${nickname}"</p>
-            <p class="card-text text-muted">${course}</p>
-            <button class="btn btn-message">Message</button>
-          </div>
-        `;
-        peerList.appendChild(newPeer);
+            <img src="${peer.image}" alt="Peer Photo" class="peer-photo">
+            <h5 class="card-title">${peer.name}</h5>
+            <p class="nickname">"${peer.nickname}"</p>
+            <p class="card-text text-muted">${peer.course}</p>
+            <div class="d-flex justify-content-center">
+              <button class="btn btn-message">Message</button>
+              <button class="btn btn-edit" data-index="${index}">Edit</button>
+              <button class="btn btn-remove" data-index="${index}">Remove</button>
+            </div>
+          </div>`;
+        peerList.appendChild(card);
+      });
+    }
 
-        addPeerForm.reset();
-        alert('New peer added successfully!');
+    // Load peers on start
+    renderPeers();
+
+    // Add new peer
+    addPeerForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const peer = {
+        name: document.getElementById("peerName").value.trim(),
+        nickname: document.getElementById("peerNickname").value.trim(),
+        course: document.getElementById("peerCourse").value.trim(),
+        image: document.getElementById("peerImage").value.trim() || "https://via.placeholder.com/100"
+      };
+      peers.push(peer);
+      localStorage.setItem("peers", JSON.stringify(peers));
+      renderPeers();
+      addPeerForm.reset();
+      alert("✅ New peer added successfully!");
+    });
+
+    // Edit or remove peer
+    peerList.addEventListener("click", e => {
+      if (e.target.classList.contains("btn-remove")) {
+        const index = e.target.getAttribute("data-index");
+        if (confirm(`Remove ${peers[index].name}?`)) {
+          peers.splice(index, 1);
+          localStorage.setItem("peers", JSON.stringify(peers));
+          renderPeers();
+        }
       }
+
+      if (e.target.classList.contains("btn-edit")) {
+        const index = e.target.getAttribute("data-index");
+        editingIndex = index;
+        document.getElementById("editName").value = peers[index].name;
+        document.getElementById("editNickname").value = peers[index].nickname;
+        document.getElementById("editCourse").value = peers[index].course;
+        document.getElementById("editImage").value = peers[index].image;
+        editPeerModal.show();
+      }
+
+      if (e.target.classList.contains("peer-photo")) {
+        modalImage.src = e.target.src;
+        imageModal.show();
+      }
+    });
+
+    // Save edits
+    editPeerForm.addEventListener("submit", e => {
+      e.preventDefault();
+      peers[editingIndex] = {
+        name: document.getElementById("editName").value,
+        nickname: document.getElementById("editNickname").value,
+        course: document.getElementById("editCourse").value,
+        image: document.getElementById("editImage").value || "https://via.placeholder.com/100"
+      };
+      localStorage.setItem("peers", JSON.stringify(peers));
+      renderPeers();
+      editPeerModal.hide();
+      alert("✅ Peer info updated successfully!");
     });
   </script>
 </body>
